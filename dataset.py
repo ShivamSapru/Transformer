@@ -9,25 +9,26 @@ class BilingualDataset(Dataset):
     def __init__(self, ds, tokenizer_src, tokenizer_tgt, src_lang, tgt_lang, seq_len) -> None:
         super().__init__()
         
+        self.seq_len = seq_len
         self.ds = ds
         self.tokenizer = tokenizer_src
         self.tokenizer = tokenizer_tgt 
         self.src_lang = src_lang
         self.tgt_lang = tgt_lang   
         
-        self.sos_token = torch.Tensor([tokenizer_src.token_to_id(['[SOS]'])], dtype=torch.int64)
+        self.sos_token = torch.Tensor([tokenizer_src.token_to_id(['[SOS]'])], dtype=torch.int64) # converts string token to an integer id
         self.eos_token = torch.Tensor([tokenizer_src.token_to_id(['[EOS]'])], dtype=torch.int64)
         self.pad_token = torch.Tensor([tokenizer_src.token_to_id(['[PAD]'])], dtype=torch.int64)
         
     def __len__(self):
         return len(self.ds)
     
-    def __getitem__(self, index: Any) -> Any:
-        src_target_pair = self.ds[index]
+    def __getitem__(self, index: Any) -> Any:   #responsible for retreiving a single data sample at a given index from the dataset. Takes an index as an argument and returns a data sample
+        src_target_pair = self.ds[index] 
         src_text = src_target_pair['translation'][self.src_lang]
-        tgt_text = src_target_pair['translation'][self.tgt_lang]
+        tgt_text = src_target_pair['translation'][self.tgt_lang] # extracts the target text using the target language identifier
         
-        enc_input_tokens = self.tokenizer_src_encoder(src_text).ids
+        enc_input_tokens = self.tokenizer_src_encoder(src_text).ids # uses source tokenizer to tokenize the source text into a list of token IDs
         dec_input_tokens = self.tokenizer_tgt_encoder(tgt_text).ids
         
         enc_num_padding_tokens = self.seq_len - len(enc_input_tokens) -2
@@ -77,5 +78,5 @@ class BilingualDataset(Dataset):
         }
     
 def causal_mask(size):
-    mask = torch.triu(torch.ones((1, size, size)), diagonal=1).type(torch.int)
+    mask = torch.triu(torch.ones((1, size, size)), diagonal=1).type(torch.int)   
     return mask == 0

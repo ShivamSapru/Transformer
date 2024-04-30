@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
-class InputEmbeddings(nn.module):
+class InputEmbeddings(nn.module): # class for input embeddings(integer token indices) that maps input token indices to embeddings of size d_model
     
     def __init__(self, d_model: int, vocab_size: int):
         super().__init__()
